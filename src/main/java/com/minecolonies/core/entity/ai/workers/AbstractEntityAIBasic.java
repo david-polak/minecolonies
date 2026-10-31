@@ -221,7 +221,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
             to resolve state.
            */
           new AIEventTarget(AIBlockingEventType.STATE_BLOCKING, this::inventoryNeedsDump, INVENTORY_FULL, 100),
-          new AITarget(INVENTORY_FULL, this::dumpInventory, 20),
+          new AITarget(INVENTORY_FULL, this::dumpInventory, Math.max(5, 20 / getLogisticsFactor())),
           /*
             Check if any items are needed.
             If yes, transition to NEEDS_ITEM.
@@ -237,7 +237,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
           /*
            * Gather a needed item.
            */
-          new AITarget(GATHERING_REQUIRED_MATERIALS, this::getNeededItem, TICKS_SECOND),
+          new AITarget(GATHERING_REQUIRED_MATERIALS, this::getNeededItem, Math.max(5, TICKS_SECOND / getLogisticsFactor())),
           /*
            * Place any non-restart regarding AITargets before this one
            * Restart AI, building etc.
@@ -1148,6 +1148,16 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
     }
 
     /**
+     * Factor by which inventory dumping and material gathering is sped up.
+     *
+     * @return the factor, 1 for no change.
+     */
+    protected int getLogisticsFactor()
+    {
+        return 1;
+    }
+
+    /**
      * Walk to building and dump inventory. If inventory is dumped, continue execution so that the state can be resolved.
      *
      * @return INVENTORY_FULL | IDLE
@@ -1184,9 +1194,22 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob<?, J>, B exten
             this.clearActionsDone();
             return afterDump();
         }
-        else if (dumpOneMoreSlot())
+        else
         {
-            return INVENTORY_FULL;
+            boolean more = false;
+            for (int i = 0; i < getLogisticsFactor(); i++)
+            {
+                more = dumpOneMoreSlot();
+                if (!more)
+                {
+                    break;
+                }
+            }
+
+            if (more)
+            {
+                return INVENTORY_FULL;
+            }
         }
 
         alreadyKept.clear();

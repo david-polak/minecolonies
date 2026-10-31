@@ -1,7 +1,10 @@
 package com.minecolonies.api.inventory;
 
 import com.google.common.collect.Iterables;
+import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.colony.jobs.IJob;
+import com.minecolonies.api.colony.jobs.ModJobs;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.NbtTagConstants;
@@ -542,20 +545,38 @@ public class InventoryCitizen implements IItemHandlerModifiable, Nameable
     }
 
     /**
+     * Grows the inventory to the size the citizen is entitled to (base size, research and job bonus). Never shrinks.
+     */
+    public void ensureSize()
+    {
+        if (citizen == null || citizen.getColony() == null)
+        {
+            return;
+        }
+
+        int target = DEFAULT_INV_SIZE + (int) citizen.getColony().getResearchManager().getResearchEffects().getEffectStrength(CITIZEN_INV_SLOTS);
+
+        final IJob<?> job = citizen.getJob();
+        if (job != null && ModJobs.BUILDER_ID.equals(job.getJobRegistryEntry().getKey()))
+        {
+            final int extra = IMinecoloniesAPI.getInstance().getConfig().getServer().builderExtraInvSlots.get();
+            target += extra - extra % ROW_SIZE;
+        }
+
+        if (this.mainInventory.size() < target)
+        {
+            resizeInventory(this.mainInventory.size(), target);
+        }
+    }
+
+    /**
      * Writes the inventory to nbt.
      *
      * @param nbtTagCompound the compound to store it in.
      */
     public void write(@NotNull final HolderLookup.Provider provider, final CompoundTag nbtTagCompound)
     {
-        if (citizen != null && citizen.getColony() != null)
-        {
-            final double researchEffect = citizen.getColony().getResearchManager().getResearchEffects().getEffectStrength(CITIZEN_INV_SLOTS);
-            if (researchEffect > 0 && this.mainInventory.size() < DEFAULT_INV_SIZE + researchEffect)
-            {
-                resizeInventory(this.mainInventory.size(), (int) (DEFAULT_INV_SIZE + researchEffect));
-            }
-        }
+        ensureSize();
 
         nbtTagCompound.putInt(TAG_INV_SIZE, this.mainInventory.size());
 

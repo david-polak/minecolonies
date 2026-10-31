@@ -499,7 +499,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
         }
 
         final double decrease = 1 - worker.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(BLOCK_PLACE_SPEED);
-        setDelay((int) ((BUILD_BLOCK_DELAY * PROGRESS_MULTIPLIER / (getPlaceSpeedLevel() / 2 + PROGRESS_MULTIPLIER)) * decrease));
+        setDelay((int) Math.max(0, (BUILD_BLOCK_DELAY * PROGRESS_MULTIPLIER / (getPlaceSpeedLevel() / 2 + PROGRESS_MULTIPLIER)) * decrease * getPlaceDelayMultiplier()));
 
         return getState();
     }
@@ -613,6 +613,26 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
      * @return the level.
      */
     public abstract int getPlaceSpeedLevel();
+
+    /**
+     * Multiplier applied to the delay between two placed blocks.
+     *
+     * @return the multiplier, 1 for no change.
+     */
+    protected double getPlaceDelayMultiplier()
+    {
+        return 1.0;
+    }
+
+    /**
+     * How many blocks are placed per work step.
+     *
+     * @return the amount of blocks per step.
+     */
+    public int getBlocksPerStep()
+    {
+        return 1;
+    }
 
     @Override
     public IAIState getStateAfterPickUp()

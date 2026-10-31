@@ -51,6 +51,12 @@ public class BuildingResourcesModule extends AbstractBuildingModule implements I
      * Total amount of stages.
      */
     private int totalStages  = 0;
+
+    /**
+     * Counter and interval used to throttle resource view syncs while blocks are being placed.
+     */
+    private static final int DIRTY_INTERVAL = 8;
+    private int dirtyCounter = 0;
     private int currentStage = 0;
 
     @Override
@@ -296,7 +302,12 @@ public class BuildingResourcesModule extends AbstractBuildingModule implements I
         {
             this.neededResources.get(name).setAmount(preAmount - amount);
         }
-        this.markDirty();
+
+        // The resources view only needs to be re-synced every few blocks, or when the last resource is used up.
+        if (++dirtyCounter % DIRTY_INTERVAL == 0 || this.neededResources.isEmpty())
+        {
+            this.markDirty();
+        }
     }
 
     /**

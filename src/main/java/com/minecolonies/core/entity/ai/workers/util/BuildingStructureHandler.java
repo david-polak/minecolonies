@@ -280,7 +280,7 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
     @Override
     public int getStepsPerCall()
     {
-        return 1;
+        return structureAI.getBlocksPerStep();
     }
 
     @Override

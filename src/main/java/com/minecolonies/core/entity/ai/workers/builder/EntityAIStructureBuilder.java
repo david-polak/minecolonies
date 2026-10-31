@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.ai.workers.builder;
 
+import com.minecolonies.core.MineColonies;
 import com.ldtteam.structurize.placement.StructurePlacer;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -68,6 +69,24 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     {
         super(job);
         worker.setCanPickUpLoot(true);
+    }
+
+    @Override
+    protected double getPlaceDelayMultiplier()
+    {
+        return MineColonies.getConfig().getServer().builderPlaceDelayMultiplier.get();
+    }
+
+    @Override
+    public int getBlocksPerStep()
+    {
+        return MineColonies.getConfig().getServer().builderBlocksPerStep.get();
+    }
+
+    @Override
+    protected int getLogisticsFactor()
+    {
+        return MineColonies.getConfig().getServer().builderLogisticsFactor.get();
     }
 
     @Override
@@ -238,7 +257,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
             if (prevBlockPosition != null)
             {
                 // This is good for building, and bad for mining, this is why mining should validate workFrom.
-                return BlockPosUtil.dist(prevBlockPosition, currentBlock) <= 10;
+                return BlockPosUtil.dist(prevBlockPosition, currentBlock) <= 10 + 3 * (getLogisticsFactor() - 1);
             }
             return false;
         }
@@ -253,7 +272,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
             return false;
         }
 
-        if (BlockPosUtil.getDistance2D(worker.blockPosition(), currentBlock) > 5)
+        if (BlockPosUtil.getDistance2D(worker.blockPosition(), currentBlock) > 5 + 2 * (getLogisticsFactor() - 1))
         {
             if (BlockPosUtil.dist(workFrom, building.getWorkOrder().getLocation()) < 100)
             {
@@ -278,7 +297,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructureWithWorkO
     @Override
     public int getBlockMiningTime(@NotNull final BlockState state, @NotNull final BlockPos pos)
     {
-        return (int) (super.getBlockMiningTime(state, pos) * SPEED_BUFF_0);
+        return (int) (super.getBlockMiningTime(state, pos) * SPEED_BUFF_0 / MineColonies.getConfig().getServer().builderMiningSpeedMultiplier.get());
     }
 
     /**

@@ -1027,6 +1027,7 @@ public class CitizenData implements ICitizenData
         }
 
         this.job = job;
+        inventory.ensureSize();
 
         getEntity().ifPresent(entityCitizen -> entityCitizen.getCitizenJobHandler().onJobChanged(job));
 

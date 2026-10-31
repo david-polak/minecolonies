@@ -35,6 +35,11 @@ public class ServerConfiguration extends AbstractConfiguration
     public final IntValue     loadtime;
     public final IntValue     colonyLoadStrictness;
     public final IntValue     maxTreeSize;
+    public final DoubleValue  builderPlaceDelayMultiplier;
+    public final DoubleValue  builderMiningSpeedMultiplier;
+    public final IntValue     builderBlocksPerStep;
+    public final IntValue     builderLogisticsFactor;
+    public final IntValue     builderExtraInvSlots;
     public final BooleanValue noSupplyPlacementRestrictions;
     public final BooleanValue skyRaiders;
 
@@ -143,6 +148,11 @@ public class ServerConfiguration extends AbstractConfiguration
         loadtime = defineInteger("loadtime", 20, 1, 1440);
         colonyLoadStrictness = defineInteger("colonyloadstrictness", 3, 1, 15);
         maxTreeSize = defineInteger("maxtreesize", 400, 1, 1000);
+        builderPlaceDelayMultiplier = defineDouble("builderplacedelaymultiplier", 1.0, 0.0, 10.0);
+        builderMiningSpeedMultiplier = defineDouble("builderminingspeedmultiplier", 1.0, 0.1, 100.0);
+        builderBlocksPerStep = defineInteger("builderblocksperstep", 1, 1, 16);
+        builderLogisticsFactor = defineInteger("builderlogisticsfactor", 1, 1, 4);
+        builderExtraInvSlots = defineInteger("builderextrainvslots", 0, 0, 45);
         noSupplyPlacementRestrictions = defineBoolean("nosupplyplacementrestrictions", false);
         skyRaiders = defineBoolean("skyraiders", false);
 
